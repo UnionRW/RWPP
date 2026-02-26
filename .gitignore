@@ -5,8 +5,6 @@ build/
 /captures
 /android/release/
 /local.properties
-/android/src/main/assets/
-/android/src/main/res/
 
 # Ignore per-module bin output directories
 **/bin/
