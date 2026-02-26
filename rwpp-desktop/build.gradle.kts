@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2023-2025 RWPP contributors
  * 此源代码的使用受 GNU AFFERO GENERAL PUBLIC LICENSE version 3 许可证的约束, 可以在以下链接找到该许可证.
@@ -16,8 +15,10 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
+val generatedDir = layout.buildDirectory.dir("generated").get().asFile
+
 ksp {
-    arg("outputDir", project.buildDir.absolutePath + "/generated")
+    arg("outputDir", generatedDir.absolutePath)
     arg("lib", "game-lib")
     arg("libDir", "$rootDir/lib")
     arg("pathType", "Path")
@@ -25,9 +26,10 @@ ksp {
 
 dependencies {
     api(project(":rwpp-core"))
-    implementation(compose.desktop.macos_arm64)
-    implementation(compose.desktop.windows_x64)
-    implementation(compose.desktop.linux_x64)
+    val composeVersion = findProperty("compose.version") as String
+    implementation("org.jetbrains.compose.desktop:desktop-jvm-macos-arm64:$composeVersion")
+    implementation("org.jetbrains.compose.desktop:desktop-jvm-windows-x64:$composeVersion")
+    implementation("org.jetbrains.compose.desktop:desktop-jvm-linux-x64:$composeVersion")
     implementation("org.slf4j:slf4j-simple:2.0.16")
     compileOnly(fileTree(
         "dir" to rootDir.absolutePath + "/lib",
@@ -44,7 +46,7 @@ dependencies {
 
 sourceSets.main {
     java.srcDirs("build/generated/ksp/main/kotlin")
-    resources.srcDir(project.buildDir.absolutePath + "/generated")
+    resources.srcDir(generatedDir)
     resources.include("config.toml")
 }
 
@@ -101,7 +103,7 @@ compose.desktop {
     }
 }
 
-task("packageWixDistribution") {
+tasks.register("packageWixDistribution") {
     dependsOn("createReleaseDistributable")
 
     doLast {
@@ -109,13 +111,11 @@ task("packageWixDistribution") {
             "dotnet run --project=${rootProject.rootDir.absolutePath + "\\wix"} $guid ${rootProject.version}"
         )
 
-        var line: String?
-        while(true) {
-            line = process.inputReader().readLine() ?: break
-            logger.lifecycle(line)
+        process.inputStream.bufferedReader().use { reader ->
+            while (true) {
+                val line = reader.readLine() ?: break
+                logger.lifecycle(line)
+            }
         }
     }
 }
-
-
-
