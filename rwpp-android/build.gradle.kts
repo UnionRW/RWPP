@@ -37,6 +37,7 @@ dependencies {
         "dir" to rootDir.absolutePath,
         "include" to "javassist4android.jar",
     ))
+    implementation("com.android.tools:r8:9.0.32")
     val koinAnnotationsVersion = findProperty("koin.annotations.version") as String
     ksp("io.insert-koin:koin-ksp-compiler:$koinAnnotationsVersion")
     ksp(project(":rwpp-ksp"))

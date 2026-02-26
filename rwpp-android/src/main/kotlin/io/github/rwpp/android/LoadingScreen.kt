@@ -43,7 +43,7 @@ import io.github.rwpp.widget.MenuLoadingView
 import io.github.rwpp.widget.RWPPTheme
 import io.github.rwpp.widget.RWSelectionColors
 import io.github.rwpp.widget.v2.TitleBrush
-import javassist.android.DexFile
+import javassist.android.DalvikClassClassPath
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
@@ -121,9 +121,10 @@ class LoadingScreen : ComponentActivity() {
                                                 val libPath = "$generatedLibDir/android-game-lib.jar"
                                                 logger?.logging("compiling dex: $libPath")
                                                 logger?.logging("Saving dex to ${dexFolder.absolutePath}/classes.dex")
-                                                val dex = DexFile()
-                                                dex.addJarFile(libPath)
-                                                dex.writeFile("${dexFolder.absolutePath}/classes.dex")
+                                                D8Compiler.compileToDex(
+                                                    jarFile = File(libPath),
+                                                    outputDir = dexFolder
+                                                )
                                                 logger?.logging("Successfully compile dex")
                                                 logger?.info("Apply config successfully. Now you can restart game to take effect. (已成功应用配置，请重启游戏以生效。)")
                                             }.onFailure {
